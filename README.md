@@ -4,9 +4,11 @@ Private skill share. Every folder in `skills/` is a skill, available three ways:
 
 | Where | How you get it | Updates |
 |---|---|---|
-| Claude Code, any folder | Plugin `tz` from this marketplace: `/tz:<skill>` | Automatic (see below) |
-| claude.ai, Claude desktop, Cowork | Upload the zip from the [latest release](../../releases/tag/latest): `/anthropic-skills:<skill>` | Re-upload the new zip |
-| Inside TzTech26/Redesgin | `.claude/skills/` in that repo: `/<skill>` | `git pull` |
+| Claude Code CLI and the desktop app's Code tab (local sessions) | Plugin `tz` from this marketplace: `/tz:<skill>` | Automatic (see below) |
+| claude.ai, Claude Code on the web, desktop app, Cowork | Upload the zip from the [latest release](../../releases/tag/latest) to your account: `/anthropic-skills:<skill>` | Re-upload the new zip |
+| Inside TzTech26/Redesgin (local or web) | `.claude/skills/` in that repo: `/<skill>` | `git pull`; web sessions clone the latest |
+
+Claude Code on the web does not install plugins, so there it is account skills or skills committed to the repo.
 
 ## Add or change a skill
 
@@ -27,10 +29,12 @@ claude plugin marketplace add TzTech26/tz-skills
 claude plugin install tz@tz-skills
 ```
 
-Then turn on auto-update: `/plugin` → **Marketplaces** → `tz-skills` → **Enable auto-update**, or set
-`"autoUpdate": true` on the `tz-skills` entry under `extraKnownMarketplaces` in `~/.claude/settings.json`.
-Claude Code checks for new commits a few minutes into a session; the new version loads in the next session or
-after `/reload-plugins`.
+The desktop app shares these settings and plugins with the CLI (local sessions, not WSL). Its **+ → Add plugins**
+menu lists the plugin once the marketplace is added.
+
+Then turn on auto-update: `/plugin` → **Marketplaces** → `tz-skills` → **Enable auto-update**. Claude Code
+checks for new commits a few minutes into a session; the new version loads in the next session or after
+`/reload-plugins`.
 
 ## Share
 
