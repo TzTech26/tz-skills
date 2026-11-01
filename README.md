@@ -1,22 +1,19 @@
 # tz-skills
 
-Private skill share. Every folder in `skills/` is a skill, available three ways:
+Private skill share. Every folder in `skills/` is a skill, available two ways:
 
 | Where | How you get it | Updates |
 |---|---|---|
 | Claude Code CLI and the desktop app's Code tab (local sessions) | Plugin `tz` from this marketplace: `/tz:<skill>` | Automatic (see below) |
 | claude.ai, Claude Code on the web, desktop app, Cowork | Upload the zip from the [latest release](../../releases/tag/latest) to your account: `/anthropic-skills:<skill>` | Re-upload the new zip |
-| Inside TzTech26/Redesgin (local or web) | `.claude/skills/` in that repo: `/<skill>` | `git pull`; web sessions clone the latest |
 
-Claude Code on the web does not install plugins, so there it is account skills or skills committed to the repo.
+Claude Code on the web does not install plugins, so there it is account skills.
 
 ## Add or change a skill
 
-- **Redesign skills** (`site-redesign`, `tzsites-redesign`) are edited in
-  [TzTech26/Redesgin](https://github.com/TzTech26/Redesgin) `.claude/skills/`. Every push to its `main` copies
-  them here. Edits made here to those folders get overwritten.
-- **Any other skill:** add `skills/<name>/SKILL.md` (frontmatter `name` and `description`) here and push.
-- Removing a skill from Redesgin does not remove it here. Delete the folder here too.
+- Every skill, the redesign skills (`site-redesign`, `tzsites-redesign`) included, lives only here: edit
+  `skills/<name>/SKILL.md` (frontmatter `name` and `description`) and push. TzTech26/Redesgin keeps no copy; the
+  redesign skills use its scripts and templates (`scripts/`, `templates/`) by their paths in that repo.
 
 Each push rebuilds the zips on the `latest` release.
 

@@ -1,6 +1,6 @@
 ---
 name: tzsites-redesign
-description: Redesign a business website and deliver it in the TZ Sites format of this repo (TzTech26/Redesgin) - a business folder with tzsites.json, a standalone site/ that reads all editable content from site/src/data/tzsites-content.json, and every internal file kept outside site/. Use when asked to make a new redesign or proposal for a business in this repo, to convert an existing redesign folder to the TZ Sites format, or to add or change editable fields (variables) or SEO settings (titles, descriptions, share images, structured data, verification, analytics) on one.
+description: Redesign a business website and deliver it in the TZ Sites format of this repo (TzTech26/Redesgin) - a business folder with tzsites.json, a standalone site/ that reads all editable content from site/src/data/tzsites-content.json, and every internal file kept outside site/. Use when asked to make a new redesign or proposal for a business in this repo, to convert an existing redesign folder to the TZ Sites format, or to add or change editable fields (variables), their live editor markers (data-tz-field) or SEO settings (titles, descriptions, share images, structured data, verification, analytics) on one.
 ---
 
 # TZ Sites redesign
@@ -10,13 +10,16 @@ gets its content, so the TZ Sites app can import the folder as a proposal, creat
 customer a download of `site/` only. The format is defined in the repo's `README.md` and `tzsites.schema.json`;
 read both first. `Camino Real/` is the worked example.
 
+If you are not inside a checkout of `TzTech26/Redesgin` (no `tzsites.schema.json` next to you), clone it first
+(`gh repo clone TzTech26/Redesgin`), work on a new branch there, and open a pull request when the redesign is done.
+
 ## 1. Do the redesign
 
 1. Create the business folder at the repo root, named after the business (`<Business Name>/`). Work inside it:
    it is the "project root" for `site-redesign`.
-2. Run the repo's `site-redesign` skill (`.claude/skills/site-redesign/`, Skill tool) and follow it for research,
-   plan, build, test and report. Use this copy, not an account-level `anthropic-skills:site-redesign`, which may be
-   out of date. Its folders (`site-research/`, `site-plan/`, `site/`, `test-report/`, `redesign-report/`, `assets/`)
+2. Run the `site-redesign` skill from the same `tz` plugin (TzTech26/tz-skills, `/tz:site-redesign`; Skill tool) and
+   follow it for research, plan, build, test and report. Use that copy, not an account-level
+   `anthropic-skills:site-redesign`, which may be out of date. Its folders (`site-research/`, `site-plan/`, `site/`, `test-report/`, `redesign-report/`, `assets/`)
    land in the business folder. Put its helper scripts, `redesign-config.md`, `design-system/` and any reference
    material in `<Business>/internal/` (e.g. `internal/claude-code/`, `internal/references/`), never at the repo root.
 3. While building, keep the rules below in mind from the start; converting afterwards is more work.
@@ -100,8 +103,43 @@ before and after to prove nothing changed.
 - Client scripts never import content; render what they need into the page (e.g. hours as JSON).
 - Handle empty values everywhere (hide the element) and support the full value shapes (several hour ranges,
   closed days, holiday exceptions, hidden collection items, remote image URLs).
+- Mark every element that renders a field as you write it (§6). Adding markers afterwards means rereading every component.
 
-## 6. Host the preview
+## 6. Mark the fields for the live editor
+
+The TZ Sites live editor shows the built site in an iframe beside the fields and highlights where each one appears.
+It finds them only through these markers and the page map, so follow this contract exactly (README, "Live editor
+markers"):
+
+- **Markers.** Every element that renders a field's value gets `data-tz-field="<fieldKey>"` (the key in `tzsites.json`
+  and the snapshot); one element showing several fields lists the keys separated by spaces. Put it on the tightest
+  element that shows just that value: the `<h1>` for a headline, the `<p>` for a tagline, the `<img>` for an image
+  (not a wrapper; `ContentImage` passes it through), the `<a>` for a phone, email or link (it covers the text and the
+  `href`), the element holding the hours table for hours. Galleries: each `<img>`, or the gallery's wrapper.
+- **Collections.** Each item's element gets `data-tz-field="<collectionKey>" data-tz-item="<item id>"` (the item's
+  `id`); elements inside it that show one of its fields also get `data-tz-item-field="<itemFieldKey>"`. Carry the
+  ids through the view model (`site.ts`) so components can render them. An `events` field works the same way: each
+  rendered occurrence gets `data-tz-field="<eventsKey>" data-tz-item="<event id>"` (repeats share the id), and the
+  parts inside get `data-tz-item-field` with the event's own keys (`title`, `details`, `date`, `start`, `end`,
+  `timeNote`, `link`, `category`).
+- **Booleans** that show or hide something: mark what they show, when it's shown (an announcement bar gets
+  `announcement_enabled`). **Colours:** the main element that uses the colour, if there's an obvious one; otherwise
+  skip. **Settings without visible text** (ordering IDs, map embed, form endpoint): the element that uses them.
+  **SEO-only fields** (`seo_*`, `<page>_seo_*`) render nothing visible: no marker.
+- **Invisible to visitors.** Markers are plain attributes in the static HTML that Astro renders, never added by client
+  JS. They change nothing that looks or behaves, and add no wrapper elements unless unavoidable. Pass each attribute
+  (`data-tz-field={x ? 'key' : undefined}`), never through a spread (`{...attrs}`): with scoped styles Astro then
+  adds a class to the element.
+- **Page map.** `node scripts/add-live-editor.mjs "<Business>"` (in the Redesign repo, like `templates/live-editor/`)
+  copies `templates/live-editor/site/src/integrations/tzsites-fields.mjs` into `site/` and adds `tzsitesFields()` to `astro.config.mjs` (and an `Access-Control-Allow-Origin` rule for the file to
+  `public/_headers`). After `astro build` it scans the built HTML and writes `dist/tzsites-fields.json`,
+  `{ "version": 1, "pages": { "<fieldKey>": ["/", "/about/"] } }`: every marked field and the pages that contain it,
+  home first (404 and the style guide left out), served at `https://<site>/tzsites-fields.json`. Never edit the copy
+  in one site: change the template and copy it with `--force`.
+- **Cover every non-SEO field.** A field with nowhere to point at (only used in JSON-LD, like `latitude`) stays
+  unmarked: say so in the report.
+
+## 7. Host the preview
 
 Every proposal is previewed on a `tzsites.com` subdomain served by **Cloudflare Workers (static assets)**, built
 straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.jsonc`, `public/_headers`,
@@ -116,6 +154,7 @@ straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.j
 | `public/_redirects` | A 301 for every old URL that changes (from the plan's redirect table). Never a rule that only adds or removes a trailing slash: the host already does that, and the rule loops. |
 | `astro.config.mjs` | `site` from the `SITE_URL` build variable, defaulting to the preview address (`https://<subdomain>.tzsites.com`), so canonicals, Open Graph URLs and the sitemap are right even when the variable is missing. |
 | `src/pages/robots.txt.ts` | From the SEO template (`add-seo.mjs` copies it): robots.txt from the SEO settings and the site address (`Sitemap: <site>/sitemap-index.xml`), never a hard-coded `public/robots.txt`. |
+| `src/integrations/tzsites-fields.mjs` | From the live editor template (`add-live-editor.mjs` copies it), in `astro.config.mjs` `integrations`: writes `dist/tzsites-fields.json` (§6). `public/_headers` gets `/tzsites-fields.json` with `Access-Control-Allow-Origin: *`. |
 
 **Cloudflare project** (Workers & Pages → Create → Import a repository → `TzTech26/Redesgin`)
 
@@ -150,12 +189,17 @@ Then put that address in `tzsites.json` as `previewUrl`, and in the site's `astr
   `tzsites.com`. At launch, set `SITE_URL` to their domain and rebuild.
 - `site/README.md` documents the same steps for a customer who hosts it themselves.
 
-## 7. Check
+## 8. Check
 
-1. `node scripts/validate.mjs` from the repo root: manifest, snapshot shapes, the SEO template (fields, site files,
-   `<SeoHead>` in use) and no internal references in `site/`. Fix every error.
-2. In `site/`: `npm ci && npm run build`, then the site's quick tests (`npm run test:quick`; set `TEST_PORT` if
+1. In `site/`: `npm ci && npm run build`, then the site's quick tests (`npm run test:quick`; set `TEST_PORT` if
    4321 is taken).
+2. `node scripts/validate.mjs` from the repo root (after the build, so it reads `dist/`): manifest, snapshot shapes,
+   the SEO template (fields, site files, `<SeoHead>` in use), no internal references in `site/`, and the live editor
+   markers: `dist/tzsites-fields.json` exists and every non-SEO field has a `data-tz-field` marker. Fix every error and
+   every marker warning. Fields listed as "empty or off in the snapshot" may only be hidden: build once with them filled
+   in and switched on (serve a changed snapshot from a localhost server to `TZSITES_CONTENT_URL`) and check they appear
+   in `tzsites-fields.json`. When you add markers to an existing site, diff the built pages' visible text (or the HTML
+   without `data-tz-*` attributes) before and after: it must be identical.
 3. Build once with `TZSITES_CONTENT_URL` pointing at an unreachable URL and confirm it falls back to the snapshot.
 4. Locally: `npx wrangler deploy --dry-run` in `site/` after a build (reads `dist/`, uploads nothing).
 5. Once deployed, check the preview: `curl -sI <previewUrl>` shows no `x-frame-options` and the
