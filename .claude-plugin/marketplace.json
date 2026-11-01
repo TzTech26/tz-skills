@@ -1,0 +1,12 @@
+{
+  "name": "tz-skills",
+  "owner": { "name": "TzTech26" },
+  "description": "Private skill share for TzTech26",
+  "plugins": [
+    {
+      "name": "tz",
+      "source": "./",
+      "description": "Every skill in skills/"
+    }
+  ]
+}
