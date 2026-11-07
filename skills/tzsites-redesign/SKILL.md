@@ -60,9 +60,12 @@ Rules:
 
 - **Every site gets the SEO template.** Run `add-seo.mjs` once the pages exist, with one `--pages key:Label` per
   page (the key is the field prefix: `home`, `menu`, `case_study`). Fill the snapshot from the research: page titles
-  (50–60 characters, what and where, e.g. "Mexican Restaurant in Mascoutah, IL") and descriptions (~150 characters),
+  (50–60 characters, what and where, e.g. "Mexican Restaurant in Mascoutah, IL" or "Sports Photographer in St. Louis")
+  and descriptions (~150 characters). **Every** `<page>_seo_title` and `<page>_seo_description` names the city or
+  area naturally, the home page's too, and no page title uses a name only the owner understands ("Misc" becomes
+  "St. Louis Street & Car Photography"). Also fill
   `seo_business_type` (closest schema.org type), `seo_cuisine` and `seo_price_range` for restaurants,
-  `seo_service_area` for businesses that travel, `seo_profiles` (Google Business Profile, Yelp, Tripadvisor) and
+  `seo_service_area` for businesses that travel or serve a metro area (it becomes `areaServed`, e.g. "Greater St. Louis area"), `seo_profiles` (Google Business Profile, Yelp, Tripadvisor) and
   `seo_keywords` (2–5 real searches). Leave `seo_site_url`, verification codes and analytics IDs empty: the owner
   provides them at launch.
 - `type` is one of the TZ Sites types; `config` follows `FieldConfig` exactly (see README). Collections need
@@ -70,6 +73,13 @@ Rules:
 - Keys are snake_case and stable. Labels and `help` are written for a restaurant/shop owner, not a developer.
 - Headline, heading and intro values follow `site-redesign`'s "Reference: Writing" limits (hero 8 words or fewer,
   section headings 6 or fewer, intros optional). Leave an intro empty rather than repeat its heading.
+- **No thin pages.** A page that is mostly photos, videos or a list (galleries, portfolios, menus) gets a visible
+  2–4 sentence intro field: what it is, who it's for, where (the city), and how to book or order. Give intro fields a
+  `maxLength` of about 600 and that brief in `help`.
+- **The home `<h1>` says what and where.** If the big heading is just the business name, render a line inside the
+  `<h1>` under it from an editable field (e.g. `tagline`: "Sports, portrait and video photographer in St. Louis").
+- **Videos** get a `date` item field (`upload_date`, "Date published", help: Google needs it for video results) filled
+  with the real upload date (YouTube watch pages have `itemprop="uploadDate"`; Vimeo's oEmbed has `upload_date`).
 - Leave the logo, colors, fonts and layout out: they are the design, not content.
 - Fill `oldSiteUrl`, `summary` (from the report: what changed, in plain words, no invented claims),
   `screenshots.old` (e.g. `site-research/pages/home/laptop.png`) and `screenshots.new`
@@ -95,11 +105,24 @@ before and after to prove nothing changed.
   (`const site = await getSite()`). Delete the old hard-coded data files.
 - Render the `<head>` with `<SeoHead>` from the SEO template (README, "SEO template"): in the layout, right after the
   charset and viewport tags, with `page` (the field prefix), the page's fallback `title`/`description`, its lead photo
-  as `image`, `noindex` for 404/style guide, and site-specific JSON-LD in `business` / `jsonLd`. Never hand-write
+  as `image`, `noindex` for 404/style guide, `logo` (the logo file in `src/assets`, when there's no `logo` field), and
+  site-specific JSON-LD in `business` / `jsonLd` (a `Person` for an owner-run business gets their headshot as
+  `image`; every `VideoObject` has `uploadDate`, `thumbnailUrl` and an `embedUrl` without `autoplay=1`, and a video
+  without a date is left out). Never hand-write
   title, description, canonical, Open Graph, Twitter, icon, verification or JSON-LD tags, and never edit
   `seo-settings.ts` / `SeoHead.astro` in one site (change `templates/seo/` and copy it with `--force`).
-- Ship `public/og-image.jpg` (1200 × 630, the best photo of the business), `favicon.ico`, `icon-192.png`,
-  `apple-touch-icon.png` and `site.webmanifest`: they are the template's defaults.
+- Ship `public/og-image.jpg` (1200 × 630, the best real photo of the business: food, venue, work. Never the logo)
+  and `site.webmanifest`. Make the icons with `node scripts/make-icons.mjs "<Business>" <source>` from a square,
+  readable logo MARK (symbol or monogram on a solid background; never the full wordmark or a cut-off crop; draw a
+  monogram SVG if the logo has no mark): it writes `favicon.ico` (16, 32, 48), `icon-96.png` (Google's search-result
+  icon must be a multiple of 48 px; the template lists it first), `icon-192.png`, `icon-512.png` and
+  `apple-touch-icon.png`. View the 16 px result.
+- In `astro.config.mjs`: `image: { domains: ['tzsites.com'] }` and
+  `sitemap({ lastmod: await siteLastModified(), … })` (from `src/lib/sitemap-lastmod.mjs`, which `add-seo.mjs` copies).
+  The image component renders a TZ Sites upload (`https://tzsites.com/...`) with `astro:assets` `<Image>` like a local
+  photo, so every image, share card and JSON-LD URL is on the site's own domain (Google Images credits that domain).
+- Content images (video posters, gallery photos, covers) have real alt text; for uploads that may arrive without
+  any, fall back in code (e.g. `Still from "<title>"`). Only decorative images get `alt=""`.
 - Client scripts never import content; render what they need into the page (e.g. hours as JSON).
 - Handle empty values everywhere (hide the element) and support the full value shapes (several hour ranges,
   closed days, holiday exceptions, hidden collection items, remote image URLs).
@@ -195,7 +218,8 @@ Then put that address in `tzsites.json` as `previewUrl`, and in the site's `astr
    4321 is taken).
 2. `node scripts/validate.mjs` from the repo root (after the build, so it reads `dist/`): manifest, snapshot shapes,
    the SEO template (fields, site files, `<SeoHead>` in use), no internal references in `site/`, and the live editor
-   markers: `dist/tzsites-fields.json` exists and every non-SEO field has a `data-tz-field` marker. Fix every error and
+   markers: `dist/tzsites-fields.json` exists and every non-SEO field has a `data-tz-field` marker, plus the SEO
+   basics: `icon-96.png`, a `favicon.ico` with 48 × 48, `og-image.jpg`, sitemap `lastmod` and `image.domains`. Fix every error and
    every marker warning. Fields listed as "empty or off in the snapshot" may only be hidden: build once with them filled
    in and switched on (serve a changed snapshot from a localhost server to `TZSITES_CONTENT_URL`) and check they appear
    in `tzsites-fields.json`. When you add markers to an existing site, diff the built pages' visible text (or the HTML
@@ -204,7 +228,11 @@ Then put that address in `tzsites.json` as `previewUrl`, and in the site's `astr
 4. Locally: `npx wrangler deploy --dry-run` in `site/` after a build (reads `dist/`, uploads nothing).
 5. Once deployed, check the preview: `curl -sI <previewUrl>` shows no `x-frame-options` and the
    `frame-ancestors` line; `curl -s <previewUrl>` has `<link rel="canonical" href="<previewUrl>">`; and
-   `<previewUrl>robots.txt` points at `<previewUrl>sitemap-index.xml`. Check one page's share card with a link
+   `<previewUrl>robots.txt` points at `<previewUrl>sitemap-index.xml`, and the sitemap URLs have `<lastmod>`. In the
+   built HTML: every `<title>` and description names the city, no `src`/`og:image`/JSON-LD URL points at
+   `tzsites.com`, the first `<link rel="icon">` is the 96 px PNG, and every `VideoObject` has `uploadDate`. If
+   Cloudflare Bot Fight Mode is on for the owner's domain, make sure it doesn't block Google's favicon crawler
+   (`curl -A "…Google-Favicon…" <site>/favicon.ico` returns 200). Check one page's share card with a link
    preview tool (or paste the link into a chat app) and the JSON-LD with https://validator.schema.org/. Then open the proposal in TZ Sites and confirm
    the "New design" panel shows the site.
 6. Add the business to the table in the root `README.md`. Commit on a branch and open a PR.

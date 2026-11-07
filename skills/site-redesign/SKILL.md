@@ -703,8 +703,14 @@ After the layout shell and shared blocks are built, load `web-design-guidelines`
 Follow `sitemap.md` in order and each page plan section by section:
 
 - **Copy:** from the page plan (rewrites) or the old `content.md` (kept). Before writing new copy, run the brand skill's `inject-brand-context` and follow the voice rules, plus the writing guidance in `frontend-design`: plain words from the customer's side, CTAs that say exactly what happens ("Get my free quote", not "Submit"), the same name for an action through the whole flow, sentence case, no filler, and errors that say what went wrong and how to fix it. Then follow **Reference: Writing** and run its check on the page.
-- **Images:** AVIF/WebP with responsive `srcset` up to `ultrawide` widths, width and height set, lazy-loaded below the fold, `fetchpriority="high"` on the hero, real alt text (`alt=""` if decorative). Run `validate-asset` on logos.
-- **SEO:** title, meta description, canonical, Open Graph and Twitter tags, one H1, logical heading order, the planned JSON-LD (validated).
+- **Images:** AVIF/WebP with responsive `srcset` up to `ultrawide` widths, width and height set, lazy-loaded below the fold, `fetchpriority="high"` on the hero, real alt text (`alt=""` only if decorative; video thumbnails and gallery photos are content). Every image is served from the business's own domain, never hot-linked from a CMS or upload host (Google Images credits the domain the file is on). Run `validate-asset` on logos.
+- **SEO:** title, meta description, canonical, Open Graph and Twitter tags, one H1, logical heading order, the planned JSON-LD (validated). Local search basics on every page:
+  - Every title and meta description names the city or area naturally ("Sports Photographer in St. Louis | LP Productions"); no page is titled with a name only the owner understands ("Misc").
+  - The home H1 says what and where; if it is only the business name, add a visible line inside it ("Sports, portrait and video photographer in St. Louis").
+  - Pages that are mostly photos, videos or lists get a 2 to 4 sentence intro: what, who it's for, where, how to book.
+  - The business JSON-LD has `areaServed` (when it serves an area), `logo`, and a real photo as `image` (never the logo); an owner's `Person` has a headshot `image`.
+  - Every `VideoObject` has `name`, `description`, `thumbnailUrl`, `uploadDate` (the real upload date) and an `embedUrl` without `autoplay=1`.
+  - `og:image` is a strong real photo (1200 × 630) on the site's own domain, not the logo.
 - After each page, screenshot it at `phone` and `laptop` and compare against the old screenshot, the plan, and the reference sites it borrows from. It should reach the same level of polish as the references without looking like a copy of any one of them. Critique it the way `frontend-design` asks: does the signature element land, does anything read as a generic default, and what one piece of decoration can be removed? Confirm each Must improvement for that page is visibly done. Record a short scroll video at `laptop` and check the motion feels like the plan.
 
 ### 3.5 Features and integrations
@@ -713,7 +719,8 @@ Follow `sitemap.md` in order and each page plan section by section:
 - **Embeds** (maps, booking, reviews, video): lazy-loaded or click-to-load.
 - **Click-to-call and click-to-email**; sticky mobile CTA if planned.
 - **Analytics and conversion events**, loaded after consent if a consent banner is needed.
-- `sitemap.xml`, `robots.txt`, favicon set, web manifest, custom 404.
+- `sitemap.xml` with `<lastmod>` on every URL, `robots.txt`, web manifest, custom 404.
+- **Favicon set** from a square, readable logo mark (symbol or monogram, never the full wordmark): `favicon.ico` with 16, 32 and 48 px inside, and a PNG whose size is a multiple of 48 (`icon-96.png`, listed first: Google shows nothing for a 32 px-only icon), plus 192, 512 and the 180 px apple-touch icon.
 - **Redirects:** the full 301 table in the host's format (`_redirects`, `vercel.json`, `.htaccess`, Nginx, or framework config).
 
 Write `site/README.md`: run locally, build, deploy, where to edit content, where tokens live, how to add a page. Then go straight to Phase 4.
@@ -793,7 +800,7 @@ Add these scripts:
 
 **Copy** (every page, Chromium `laptop`): every H1 is 8 words or fewer; every H2 and H3 is 6 words or fewer; every button and link styled as a button is 4 words or fewer; no word or shape from the **Reference: Writing** list appears in visible text, except phrases found in the old site's `content.md` (keep that allowlist in the test file); no heading is followed by an intro that repeats most of its words. Failures print the text and its location.
 
-**SEO and links:** every page has a title, description, canonical, one H1, and valid JSON-LD · no broken internal links or images · every redirect from the plan returns 301 to the right target.
+**SEO and links:** every page has a title and description that name the city, a canonical, one H1, and valid JSON-LD (every `VideoObject` with `uploadDate`) · `og:image` is a real photo on the site's own domain · the first icon link is a PNG whose size is a multiple of 48 and `favicon.ico` has 48 × 48 · the sitemap has `<lastmod>` · no image hot-linked from another domain · no broken internal links or images · every redirect from the plan returns 301 to the right target.
 
 **Performance:** Lighthouse (Chromium) on every page template at `phone` (with mobile throttling) and `laptop`. Targets from build-spec.md (default 90+ in all four categories). Record LCP, CLS, and INP.
 
