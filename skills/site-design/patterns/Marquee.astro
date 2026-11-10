@@ -1,0 +1,89 @@
+---
+/**
+ * Slow loop of real things: client logos, certifications, brands serviced, towns served.
+ * Pass <li> children. Stops on hover and focus, has a pause button, and becomes a still, wrapped row
+ * when motion is reduced. Do not use it without real items to show.
+ */
+interface Props {
+  label: string;
+  seconds?: number;
+}
+const { label, seconds = 40 } = Astro.props;
+const items = await Astro.slots.render('default');
+---
+
+<div class="mq" data-mq role="group" aria-label={label} style={`--mq-time:${seconds}s`}>
+  <div class="mq-view">
+    <ul class="mq-track"><Fragment set:html={items} /></ul>
+    <ul class="mq-track" aria-hidden="true" inert><Fragment set:html={items} /></ul>
+  </div>
+  <button class="mq-pause" type="button" aria-pressed="false">Pause</button>
+</div>
+
+<style>
+  .mq-view {
+    display: flex;
+    overflow: hidden;
+  }
+  .mq-track {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-around;
+    gap: var(--mq-gap, 3rem);
+    min-width: 100%;
+    margin: 0;
+    padding: 0 var(--mq-gap, 3rem) 0 0;
+    list-style: none;
+    animation: mq var(--mq-time) linear infinite;
+  }
+  .mq-track :global(li) {
+    flex: none;
+    white-space: nowrap;
+  }
+  .mq:hover .mq-track,
+  .mq:focus-within .mq-track,
+  .mq[data-paused] .mq-track {
+    animation-play-state: paused;
+  }
+  .mq-pause {
+    display: block;
+    min-height: 2.75rem;
+    margin: 0.5rem 0 0 auto;
+    padding: 0 0.75rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    color: var(--muted, inherit);
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  @keyframes mq {
+    to { transform: translateX(-100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mq-track {
+      flex: 1;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      min-width: 0;
+      padding: 0;
+      animation: none;
+    }
+    .mq-track[aria-hidden],
+    .mq-pause {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-mq]').forEach((el) => {
+    const btn = el.querySelector<HTMLButtonElement>('.mq-pause')!;
+    btn.addEventListener('click', () => {
+      const paused = el.toggleAttribute('data-paused');
+      btn.setAttribute('aria-pressed', String(paused));
+      btn.textContent = paused ? 'Play' : 'Pause';
+    });
+  });
+</script>

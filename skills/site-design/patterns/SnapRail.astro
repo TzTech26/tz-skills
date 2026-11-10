@@ -1,0 +1,32 @@
+---
+/**
+ * Sideways rail for photos, projects or reviews. Swipe, scroll, or focus it and use the arrow keys.
+ * Children are the items. The next item peeks in so people know there is more. No autoplay.
+ * Not for things people compare or look up (menus, prices, hours).
+ */
+interface Props {
+  label: string;
+  /** Width of one item. */
+  item?: string;
+}
+const { label, item = 'min(80%, 24rem)' } = Astro.props;
+---
+
+<div class="rail" role="region" aria-label={label} tabindex="0" style={`--rail-item:${item}`}><slot /></div>
+
+<style>
+  .rail {
+    display: flex;
+    gap: var(--rail-gap, 1rem);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    padding-inline: var(--rail-pad, 1.25rem);
+    scroll-padding-inline: var(--rail-pad, 1.25rem);
+    scrollbar-width: thin;
+  }
+  .rail > :global(*) {
+    flex: 0 0 var(--rail-item);
+    scroll-snap-align: start;
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+/**
+ * One word in a sentence that changes: "Made for <RotatingWord words={['roofers', 'dentists', 'barbers']} />".
+ * Screen readers get the whole list once. Without JavaScript or with reduced motion the first word stays.
+ * The box is as wide as the longest word, so put it at the end of a line. Use only when every word is true.
+ */
+interface Props {
+  words: string[];
+  seconds?: number;
+}
+const { words, seconds = 2.2 } = Astro.props;
+const all = new Intl.ListFormat('en', { type: 'conjunction' }).format(words);
+---
+
+<span class="rw" data-rw data-ms={seconds * 1000}>
+  <span class="rw-all">{all}</span>
+  <span class="rw-box" aria-hidden="true">
+    {words.map((w, i) => <span class:list={['rw-word', i === 0 && 'is-on']}>{w}</span>)}
+  </span>
+</span>
+
+<style>
+  .rw-all {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .rw-box {
+    display: inline-grid;
+    overflow: clip;
+    vertical-align: bottom;
+  }
+  .rw-word {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(100%);
+    white-space: nowrap;
+  }
+  .rw-word.is-on {
+    opacity: 1;
+    transform: none;
+  }
+  .rw-word.was-on {
+    transform: translateY(-100%);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .rw-word {
+      transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+</style>
+
+<script>
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('[data-rw]').forEach((el) => {
+      const words = [...el.querySelectorAll<HTMLElement>('.rw-word')];
+      if (words.length < 2) return;
+      let i = 0;
+      setInterval(() => {
+        if (document.hidden) return;
+        words.forEach((w) => w.classList.remove('was-on'));
+        words[i].classList.replace('is-on', 'was-on');
+        i = (i + 1) % words.length;
+        words[i].classList.add('is-on');
+      }, Number(el.dataset.ms));
+    });
+  }
+</script>
