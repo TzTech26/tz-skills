@@ -1,0 +1,44 @@
+---
+/**
+ * One sentence that goes from muted to full ink, word by word, as it crosses the screen, and back
+ * as it leaves. It is real text and always readable (--muted must still pass 4.5:1). One per page,
+ * for the line that sums the business up. Not for body copy.
+ */
+interface Props {
+  text: string;
+  as?: string;
+}
+const { text, as: Tag = 'p' } = Astro.props;
+const words = text.trim().split(/\s+/);
+const step = 40 / words.length;
+---
+
+<Tag class="lit">
+  {
+    words.map((w, i) => (
+      <>
+        <span style={`animation-range:cover ${(20 + i * step).toFixed(1)}% cover ${(30 + i * step).toFixed(1)}%`}>{w}</span>{' '}
+      </>
+    ))
+  }
+</Tag>
+
+<style>
+  .lit span {
+    display: inline-block;
+  }
+  @keyframes lit {
+    from { color: var(--muted, #767676); }
+    to { color: var(--ink, #111); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .lit span {
+        animation-name: lit;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+      }
+    }
+  }
+</style>

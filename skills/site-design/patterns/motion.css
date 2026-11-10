@@ -1,0 +1,66 @@
+/* Motion base: copy into the site's global CSS. Feedback first, then scroll-linked reveals that replay.
+   data-wipe: images. data-rise: non-text blocks (a photo grid, a map). Never put either on headings or body text. */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --t-fast: 150ms;
+  --t-mid: 250ms;
+  --t-slow: 700ms;
+}
+
+:where(a, button, input, select, textarea, summary) {
+  transition:
+    color var(--t-fast) ease,
+    background-color var(--t-fast) ease,
+    border-color var(--t-fast) ease,
+    transform var(--t-fast) var(--ease-out);
+}
+:where(button, [data-press]):active {
+  transform: scale(0.98);
+}
+
+@keyframes wipe-in {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Tied to scroll position: runs forward on the way in, backward on the way out, so it is there every time. */
+  @supports (animation-timeline: view()) {
+    /* Longhands on purpose: CSS minifiers fold animation-timeline into the `animation` shorthand,
+       which browsers then reject, and the whole animation silently disappears. */
+    [data-wipe],
+    [data-rise] {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+    }
+    [data-wipe] {
+      animation-name: wipe-in;
+      animation-range: entry 0% cover 35%;
+    }
+    [data-rise] {
+      animation-name: rise-in;
+      animation-range: entry 0% cover 30%;
+    }
+  }
+
+  /* Older browsers: motion.js adds .js to <html> and toggles .in. Without the script nothing is hidden.
+     Both kinds fade and rise here. Do not hide with clip-path in this branch: an element clipped to
+     nothing never counts as "in view", so the observer would never show it. */
+  @supports not (animation-timeline: view()) {
+    .js :is([data-wipe], [data-rise]) {
+      opacity: 0;
+      transform: translateY(1.5rem);
+      transition: opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
+    }
+    .js :is([data-wipe], [data-rise]).in {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

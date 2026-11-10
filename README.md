@@ -9,11 +9,25 @@ Private skill share. Every folder in `skills/` is a skill, available two ways:
 
 Claude Code on the web does not install plugins, so there it is account skills.
 
+## The skills
+
+| Skill | Command | What it does |
+|---|---|---|
+| `site-design` | `/tz:site-design` | Designs and builds a small-business website, from an existing site or from nothing. Self-contained: research, plan, build, test, report. |
+| `tzsites-integration` | `/tz:tzsites-integration` | Puts a site into the TZ Sites format in TzTech26/Redesgin: fields, content snapshot, live editor markers, SEO template, Cloudflare preview. Integration only; it calls `site-design` for the design. |
+
+`site-design` needs Node 18+ and Playwright (Chromium and WebKit) and nothing else: no other skill or plugin. Its
+folder holds the skill, short reference files it reads per phase (`reference/`), ready components
+(`patterns/`) and two check scripts (`checks/`, each with `--self-test`).
+
+`tzsites-integration` needs a checkout of TzTech26/Redesgin (its scripts and templates), `gh`, and for previews a
+Cloudflare account with the `tzsites.com` zone.
+
 ## Add or change a skill
 
-- Every skill, the redesign skills (`site-redesign`, `tzsites-redesign`) included, lives only here: edit
-  `skills/<name>/SKILL.md` (frontmatter `name` and `description`) and push. TzTech26/Redesgin keeps no copy; the
-  redesign skills use its scripts and templates (`scripts/`, `templates/`) by their paths in that repo.
+- Every skill lives only here: edit `skills/<name>/SKILL.md` (frontmatter `name` and `description`) and push.
+  TzTech26/Redesgin keeps no copy; `tzsites-integration` uses that repo's scripts and templates (`scripts/`,
+  `templates/`) by their paths.
 
 Each push rebuilds the zips on the `latest` release.
 

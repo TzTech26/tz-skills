@@ -1,0 +1,81 @@
+---
+/**
+ * A photo (or map, or drawing) stays in place while 3 to 5 steps scroll past it. The page scrolls
+ * normally; nothing is hijacked. A marker beside each step fills as it crosses the middle of the screen
+ * and empties as it leaves. On small screens it is a plain stacked list.
+ * Slots: "media" and the default slot with <li> steps. Only for a real sequence.
+ */
+---
+
+<div class="pin">
+  <div class="pin-media"><slot name="media" /></div>
+  <ol class="pin-steps"><slot /></ol>
+</div>
+
+<style>
+  .pin {
+    display: grid;
+    gap: 2rem;
+  }
+  .pin-steps {
+    display: grid;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @keyframes pin-on {
+    0% { transform: scaleY(0); }
+    40%, 60% { transform: scaleY(1); }
+    100% { transform: scaleY(0); }
+  }
+  @media (min-width: 56rem) {
+    .pin {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .pin-media {
+      position: sticky;
+      top: var(--pin-top, 6rem);
+    }
+    .pin-steps {
+      gap: 0;
+    }
+    .pin-steps > :global(li) {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 60vh;
+      padding-left: 1.5rem;
+    }
+    .pin-steps > :global(li)::before,
+    .pin-steps > :global(li)::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 25%;
+      bottom: 25%;
+      width: 3px;
+      background: var(--line, #ccc);
+    }
+    .pin-steps > :global(li)::after {
+      background: var(--accent, currentColor);
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        .pin-steps > :global(li)::after {
+          /* Longhands: a minifier would fold the timeline into the shorthand and break it. */
+          animation-name: pin-on;
+          animation-timing-function: linear;
+          animation-fill-mode: both;
+          animation-timeline: view();
+          animation-range: cover 20% cover 80%;
+        }
+      }
+    }
+  }
+</style>

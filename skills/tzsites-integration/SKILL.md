@@ -1,28 +1,33 @@
 ---
-name: tzsites-redesign
-description: Redesign a business website and deliver it in the TZ Sites format of this repo (TzTech26/Redesgin) - a business folder with tzsites.json, a standalone site/ that reads all editable content from site/src/data/tzsites-content.json, and every internal file kept outside site/. Use when asked to make a new redesign or proposal for a business in this repo, to convert an existing redesign folder to the TZ Sites format, or to add or change editable fields (variables), their live editor markers (data-tz-field) or SEO settings (titles, descriptions, share images, structured data, verification, analytics) on one.
+name: tzsites-integration
+description: Put a website into the TZ Sites format of the TzTech26/Redesgin repo so the TZ Sites app can import it as a proposal - a business folder with tzsites.json, a standalone site/ that reads all editable content from site/src/data/tzsites-content.json, live editor markers (data-tz-field), the SEO template, and a Cloudflare preview on tzsites.com. Integration only; the design comes from the site-design skill. Use when asked to make a new proposal or redesign for a business in that repo, to convert an existing site folder to the TZ Sites format, or to add or change editable fields, markers, SEO settings or the preview hosting on one.
 ---
 
-# TZ Sites redesign
+# TZ Sites integration
 
-The design work comes from the `site-redesign` skill. This skill decides where its output goes and how the site
-gets its content, so the TZ Sites app can import the folder as a proposal, create the site's fields, and give the
-customer a download of `site/` only. The format is defined in the repo's `README.md` and `tzsites.schema.json`;
-read both first. `Camino Real/` is the worked example.
+This skill is only about fitting a site into TZ Sites: where files go, how the site gets its content, how fields
+are marked, and how the preview is hosted. It makes no design or writing decisions. Those belong to the
+`site-design` skill in this same plugin (`/tz:site-design`); when a site has to be designed or built, load that
+skill and follow it, then apply the rules here as you build.
 
-If you are not inside a checkout of `TzTech26/Redesgin` (no `tzsites.schema.json` next to you), clone it first
-(`gh repo clone TzTech26/Redesgin`), work on a new branch there, and open a pull request when the redesign is done.
+The format is defined in the Redesgin repo's `README.md` and `tzsites.schema.json`; read both first. If you are
+not inside a checkout of `TzTech26/Redesgin` (no `tzsites.schema.json` next to you), clone it
+(`gh repo clone TzTech26/Redesgin`), work on a new branch, and open a pull request when done.
 
-## 1. Do the redesign
+## 1. Where things go
 
-1. Create the business folder at the repo root, named after the business (`<Business Name>/`). Work inside it:
-   it is the "project root" for `site-redesign`.
-2. Run the `site-redesign` skill from the same `tz` plugin (TzTech26/tz-skills, `/tz:site-redesign`; Skill tool) and
-   follow it for research, plan, build, test and report. Use that copy, not an account-level
-   `anthropic-skills:site-redesign`, which may be out of date. Its folders (`site-research/`, `site-plan/`, `site/`, `test-report/`, `redesign-report/`, `assets/`)
-   land in the business folder. Put its helper scripts, `redesign-config.md`, `design-system/` and any reference
-   material in `<Business>/internal/` (e.g. `internal/claude-code/`, `internal/references/`), never at the repo root.
-3. While building, keep the rules below in mind from the start; converting afterwards is more work.
+1. The business folder sits at the repo root, named after the business without apostrophes (`Woodys Auto Repair/`).
+   It is the project root for `site-design`, so `site-research/`, `site-plan/`, `site/`, `test-report/` and
+   `redesign-report/` land inside it.
+2. Helper scripts, `redesign-config.md`, checklists and reference material go in `<Business>/internal/`, never at
+   the repo root. Scratch files stay in `site-research/_local/`, which the repo ignores: reference-site
+   screenshots, videos and raw downloads are never committed.
+3. From other business folders copy plumbing only: the content loader, the SEO and live editor templates (through
+   their scripts), test setup and host files. Pages, layouts, components and styles are designed for this business
+   by `site-design`.
+4. **A business with no website yet**: `oldSiteUrl` is `""`, and `screenshots.old` is a screenshot of its Google
+   listing.
+5. Apply the rules below from the first file you write; converting afterwards is more work.
 
 ## 2. Keep `site/` the deliverable
 
@@ -71,13 +76,11 @@ Rules:
 - `type` is one of the TZ Sites types; `config` follows `FieldConfig` exactly (see README). Collections need
   `itemFields` (types other than collection/hours/gallery, `helpText` not `help`), `itemTitleKey`, `itemLabel`.
 - Keys are snake_case and stable. Labels and `help` are written for a restaurant/shop owner, not a developer.
-- Headline, heading and intro values follow `site-redesign`'s "Reference: Writing" limits (hero 8 words or fewer,
-  section headings 6 or fewer, intros optional). Leave an intro empty rather than repeat its heading.
-- **No thin pages.** A page that is mostly photos, videos or a list (galleries, portfolios, menus) gets a visible
-  2–4 sentence intro field: what it is, who it's for, where (the city), and how to book or order. Give intro fields a
-  `maxLength` of about 600 and that brief in `help`.
-- **The home `<h1>` says what and where.** If the big heading is just the business name, render a line inside the
-  `<h1>` under it from an editable field (e.g. `tagline`: "Sports, portrait and video photographer in St. Louis").
+- What the values say is `site-design`'s job (its `reference/copy.md`). Here: an optional value (an intro, a
+  description) can be left empty, and the site must hide it.
+- Intro fields on pages that are mostly photos, videos or a list get a `maxLength` of about 600 and a `help` line
+  saying what belongs there (what it is, who it's for, where, how to book or order). An editable `tagline` field
+  feeds the line under a business-name `<h1>`.
 - **Videos** get a `date` item field (`upload_date`, "Date published", help: Google needs it for video results) filled
   with the real upload date (YouTube watch pages have `itemprop="uploadDate"`; Vimeo's oEmbed has `upload_date`).
 - Leave the logo, colors, fonts and layout out: they are the design, not content.
@@ -159,6 +162,14 @@ markers"):
   `{ "version": 1, "pages": { "<fieldKey>": ["/", "/about/"] } }`: every marked field and the pages that contain it,
   home first (404 and the style guide left out), served at `https://<site>/tzsites-fields.json`. Never edit the copy
   in one site: change the template and copy it with `--force`.
+- **Try-before-you-buy preview.** On a proposal the business edits its content and the preview rewrites the page
+  through these markers, so keep to these shapes. **Hours:** inside the element marked with the hours field, one
+  row per day carries `data-day="mon"`…`"sun"`, and the times are the only text in the row's last `<td>`/`<dd>`
+  (a table showing two hours fields lists both keys on the marker, one cell per field in that order). Grouped
+  rows ("Mon–Thu") can't be previewed. **Collections:** every item, wherever it's listed, has `data-tz-item`, and
+  each part has `data-tz-item-field`: a new item is shown as a copy of its neighbour with those parts refilled, a
+  removed one is hidden. **Colour fields** that change the design are read from a CSS variable named
+  `--tz-<fieldKey>` (set on `:root` at build time); the preview sets that variable.
 - **Cover every non-SEO field.** A field with nowhere to point at (only used in JSON-LD, like `latitude`) stays
   unmarked: say so in the report.
 
@@ -190,6 +201,18 @@ straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.j
 | Deploy command | `npx wrangler deploy` |
 | Variables | `SITE_URL=https://<subdomain>.tzsites.com`; `NODE_VERSION=22` if the build image is older |
 | Custom domain | `<subdomain>.tzsites.com` (short and readable, e.g. `lp-pro.tzsites.com`) |
+
+The project's Settings page has two build tabs, and both must be right or every pull request in the repo shows a
+failed check for this business:
+
+| Builds tab | Build command | Deploy / preview command | Root directory | Build watch paths (include) |
+|---|---|---|---|---|
+| Production | `npm run build` | `npx wrangler deploy` | `/<Business Name>/site` | `<Business Name>/*` |
+| Previews Base | `npm run build` | `npx wrangler preview` | `/<Business Name>/site` | `<Business Name>/*` |
+
+The default Previews Base tab has no build command and the wrong root, so set it by hand. The watch path stops
+this project building when another business's branch is pushed. A failing "Workers Builds" check on a pull
+request is one of these settings, not the code: read the build log in the Cloudflare dashboard.
 
 Then put that address in `tzsites.json` as `previewUrl`, and in the site's `astro.config.mjs` default.
 
