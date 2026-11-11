@@ -69,6 +69,13 @@ plan must name which one it is using:
 - **Two-color**: a second color from the logo used for one job only (for example, prices and the open-now dot).
   Only if the logo really has two colors and they look good side by side at button size.
 
+A two-color plan adds two tokens, `--accent-2` and, if text sits on the accent, `--muted-on-accent`. If the
+second logo color is warm and pale (peach, tan, cream), `palette.mjs` will read it as a warm neutral: run it
+with `--hues 2 --allow-warm`, and keep that color off page and section backgrounds.
+
+A color sampled from a photo of a sign is darker and duller than the printed color. Lift it until it matches
+the sign by eye, say so in the plan, and ask the owner for the real value.
+
 Whatever the strategy, every color on the page must be traceable to the logo, to neutral, or to a status. If you
 cannot say which of the three a color is, remove it.
 

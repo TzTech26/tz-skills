@@ -28,20 +28,23 @@ place looks like, how the owner talks), and write the choice and the reason in t
 | Section rhythm | How sections are separated: space only; rules; alternating grounds; a photo between each. And how their layouts differ from one to the next |
 | Footer | A full contact block; one line; a big wordmark; a map |
 | Detail from the trade | A ticket, a tag, a stamp, a menu board, a chalk line, a blueprint grid, a seam, a label. One, used sparingly |
+| Shared blocks | The parts every site has: map, hours table, open-now line, phone action bar, review quotes. Each is drawn for this site, or left plain (a link instead of a map box) |
 
 A row left at "whatever is usual" is how sites end up as siblings. A garage, a tea shop and a photographer
 should not share an answer on more than a few of these.
 
 ## 3. Compare before building, and again after
 
-In the plan, add a difference table against the two most recent sibling sites (look at their home page
-screenshots and plans):
+In the plan, add a difference table against the two sibling sites added most recently (by first commit). Look at
+their home page screenshots (`redesign-report/compare/_new/`; rebuild and reshoot if the site changed since) and
+their fonts and signature pieces in `site/`. Older siblings' plan files are not worth reading.
 
 | Lever | Sibling A | Sibling B | This site |
 |---|---|---|---|
 
-At least seven of the eleven levers must differ from both siblings, and the first screen, the type and the
-signature piece must always differ.
+At least eight of the twelve levers must differ from both siblings, and the first screen, the type and the
+signature piece must always differ. A signature a sibling already has (an open-now badge, a picker that fills a
+summary card) is not a signature here.
 
 When `preview.png` is ready, put it beside the siblings' home pages. Blur your eyes: if the three could be the
 same template in different colors, change the plan. Do the same with the finished home page in Phase 4, and give

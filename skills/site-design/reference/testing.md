@@ -13,7 +13,18 @@ Pin the Playwright version in `package.json` (no `^`): a newer browser build may
 browser will not launch, try once to reinstall it, then leave it out and say so in the results. Firefox is
 optional: add it only if it launches.
 
-Run against the production build (`webServer` runs `npm run build && npm run preview`), never dev mode.
+Run against the production build (`webServer` runs `npm run build && npm run preview`), never dev mode. Give
+each site its own port (not 4321) and set `reuseExistingServer: false`: with a shared port, tests and
+screenshots silently run against another site's server. Astro allows one preview server per project and a stale
+one keeps serving the old build (`npx astro preview stop` clears it). Before any screenshot, check the page
+title is this business's.
+
+If a config was copied from a sibling, make it match this file (these screens and engines, no screenshot
+baselines) and pin the version there too.
+
+On Windows: Lighthouse's own Chrome launcher can fail (`spawn UNKNOWN`); start Playwright's Chromium with
+`--remote-debugging-port` and point Lighthouse's node API at that port. In Git Bash set `MSYS_NO_PATHCONV=1`
+when a script takes `/` or `a:b` arguments.
 
 Screens:
 
@@ -43,21 +54,29 @@ Every page:
   and content left hidden.
 - With `reducedMotion: 'reduce'`, the page works and nothing moves on its own.
 
+In these tests, scroll with `behavior: 'instant'` (smooth scrolling has not landed by the next assertion in
+WebKit), and leave out inputs hidden on purpose behind a custom control. An entrance on the first screen may
+move a cover or the element; it never touches the content's opacity.
+
+**Optional states.** The default content never shows the form, an announcement, holiday hours or empty values.
+Build a second copy from the content with every optional field filled, and a third with them empty, and run the
+page tests and the form tests on those too.
+
 Phones: tap targets 44 px, body text and inputs 16 px or more, the main action visible without scrolling, the
 menu opens, closes, traps focus and closes on Escape.
 
 Laptop: main action above the fold at 900 px tall. Ultrawide: content capped and centered, backgrounds reach
-both edges.
+both edges. With a fixed side rail, the rail and the content are capped and centered together as one block.
 
 Interaction: keyboard reaches everything in order with visible focus; forms show errors beside fields and reach
 a success state (stub the destination); every signature piece works with keyboard and touch.
 
-Copy: `h1` 8 words or fewer, other headings 6, buttons 4; no heading followed by a line that repeats most of its
-words. Keep an allowlist for the owner's own phrases and for menu item names.
+Copy: `h1` 8 words or fewer, other headings 6, buttons 4; no heading that repeats the line before or after
+it. Keep an allowlist for the owner's own phrases and for menu item names.
 
 Redirects (redesign): every old URL returns 301 to the planned target.
 
-Lighthouse: the home page and one inner page, phone and laptop. Aim for 90 or better in all four. Record LCP and
+Lighthouse: the home page and one inner page (a one-page site: just the home page), phone and laptop. Aim for 90 or better in all four. Record LCP and
 CLS. Do not save the raw JSON.
 
 ## The two check scripts
@@ -76,13 +95,16 @@ a fact shows up more often than `reference/copy.md` allows. A failure means the 
 ## Look at every page
 
 Take full-page screenshots of every page at `phone` and `laptop` (and the home page at `ultrawide`), and view
-each one. Not a sample. For each, answer:
+each one. Not a sample. Scroll the page to the bottom first so lazy images load. If the page has a fixed bar or
+a sticky rail, hide the bar for the full-page shot and take a first-screen shot as well, or the bar lands in the
+middle of the image. For each, answer:
 
 1. Is the primary button the first colored thing you see? Is any color there that is not the logo's, neutral, or
    a status?
 2. Read the page as a customer. Is anything said twice? Are hours, phone or address visible more than once?
 3. Does the page look like the business, or like any business of its kind with the name swapped? Put the home
-   page beside the home pages of sibling sites: could they be one template in different colors?
+   page beside the home pages of sibling sites: could they be one template in different colors? Does any block
+   (map, hours table, action bar) look lifted from a sibling?
 4. Do the signature pieces work? Use them. Scroll past, scroll back, and check they are still there.
 5. Anything awkward: a heading with one word on its last line, cramped or empty gaps, a badly cropped photo,
    misaligned edges, a section that is all the same shape as the one above it?

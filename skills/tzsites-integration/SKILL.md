@@ -20,14 +20,18 @@ not inside a checkout of `TzTech26/Redesgin` (no `tzsites.schema.json` next to y
    It is the project root for `site-design`, so `site-research/`, `site-plan/`, `site/`, `test-report/` and
    `redesign-report/` land inside it.
 2. Helper scripts, `redesign-config.md`, checklists and reference material go in `<Business>/internal/`, never at
-   the repo root. Scratch files stay in `site-research/_local/`, which the repo ignores: reference-site
-   screenshots, videos and raw downloads are never committed.
+   the repo root (this overrides `site-design`'s default of the project root). Scratch files stay in
+   `site-research/_local/`, which the repo ignores (`**/site-research/_local/` in the root `.gitignore`):
+   reference-site screenshots, videos and raw downloads are never committed.
 3. From other business folders copy plumbing only: the content loader, the SEO and live editor templates (through
    their scripts), test setup and host files. Pages, layouts, components and styles are designed for this business
-   by `site-design`.
+   by `site-design`. Take plumbing from the most recently added business folder, and rewrite its Playwright
+   config to match `site-design`'s `reference/testing.md` (own port, no screenshot baselines).
 4. **A business with no website yet**: `oldSiteUrl` is `""`, and `screenshots.old` is a screenshot of its Google
-   listing.
-5. Apply the rules below from the first file you write; converting afterwards is more work.
+   listing (Google Maps in headless Playwright, at phone and laptop width).
+5. **One folder and slug per business.** If a branch or open PR already has this business's folder, say so
+   before starting: only one of them can merge.
+6. Apply the rules below from the first file you write; converting afterwards is more work.
 
 ## 2. Keep `site/` the deliverable
 
@@ -83,10 +87,17 @@ Rules:
   feeds the line under a business-name `<h1>`.
 - **Videos** get a `date` item field (`upload_date`, "Date published", help: Google needs it for video results) filled
   with the real upload date (YouTube watch pages have `itemprop="uploadDate"`; Vimeo's oEmbed has `upload_date`).
-- Leave the logo, colors, fonts and layout out: they are the design, not content.
+- Leave the logo, colors, fonts and layout out: they are the design, not content. A site with no logo file,
+  whose wordmark is the business name set in type, marks the wordmark with `business_name`.
+- A directions link is a field named `directions_url`. A key with `google` or `maps` in it is picked up as a
+  social profile by the SEO template; the Google listing itself goes in `seo_profiles`.
+- A form with nowhere confirmed to send: an optional `email` field that is not printed on the site. Filled, the
+  form opens the visitor's email app; empty, the site shows the call button instead.
 - Fill `oldSiteUrl`, `summary` (from the report: what changed, in plain words, no invented claims),
   `screenshots.old` (e.g. `site-research/pages/home/laptop.png`) and `screenshots.new`
   (e.g. `redesign-report/compare/_new/home-laptop.png`) with files that exist. Add `previewUrl` only if deployed.
+  `validate.mjs` fails on `screenshots.new` until the report phase has made that file; that one failure is
+  expected during the build.
 
 ## 4. Write the snapshot
 

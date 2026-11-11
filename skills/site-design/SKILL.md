@@ -53,8 +53,11 @@ next command. Nothing else.
 | 5 Report | `redesign-report/REPORT.md`, `redesign-report/compare/` |
 
 That is the whole list. Do not write other planning documents; if something matters, it goes in `PLAN.md`.
-Scratch files (scripts, reference-site screenshots, raw downloads) go in `site-research/_local/`, which is never
-committed: add it to `.gitignore` first.
+Notes that belong to a listed file go inside it: sources in `content.json`, photo notes and reference-site notes
+in `brand.md` and `BRIEF.md`. Scratch files (scripts, reference-site screenshots, raw downloads, a throwaway
+`npm i playwright sharp` for screenshots before `site/` exists) go in `site-research/_local/`, which is never
+committed: first add `**/site-research/_local/` to the repository's root `.gitignore` and check with
+`git status` that it is ignored.
 
 ## Rules that do not bend
 
@@ -110,7 +113,8 @@ Read `reference/sources.md`. Goal: after this phase nobody needs to visit the ol
    write `hosting.md`.
 5. **Three reference sites**, no more: good sites for the same kind of business, plus any the user named. For
    each, one screenshot and three lines: what works, the one idea worth adapting, what to avoid. Keep the
-   screenshots in `_local/`. Do not record videos or write per-site reports.
+   screenshots in `_local/` and the lines in `BRIEF.md`. A site that blocks the fetch is skipped for the next
+   candidate. Do not record videos or write per-site reports.
 6. **`BRIEF.md`**, one page: the business in two sentences, the goal, what exists (logo, photos, facts), what is
    missing, the top problems (redesign) or what customers cannot find today (new), and questions for the owner.
 
@@ -130,7 +134,8 @@ One file, `site-plan/PLAN.md`. Read `reference/distinct.md`, `reference/color.md
 3. **Palette**: the tokens from `reference/color.md`, each with its use and computed contrast.
 4. **Type**: one or two families and their jobs. Pick for this business, not from habit.
 5. **Pages**: for each, the sections in order, and for each section the actual words (headings, body, buttons)
-   and which photo. Pages are not required to share a section order.
+   and which photo. Quotes and lists already in `content.json` are named, not retyped. Pages are not required
+   to share a section order.
 6. **Fact map**: a table of every repeated fact (hours, phone, address, main action, reviews link) and the single
    place it lives on each page.
 7. **Signature pieces**: one or two, from `reference/motion.md` or made for this site, each tied to real content.
@@ -157,16 +162,21 @@ projects copy plumbing only (config, loaders, test setup); layouts, components a
 site (`reference/distinct.md`).
 
 - Phone first. Check each section at 360 px wide before widening.
-- Tokens only: no raw color values in components. The token set is the one in the plan; add nothing.
+- Tokens only: no raw color values in components. The token set is the one in the plan; add nothing. With
+  Tailwind 4, put tokens and their breakpoint overrides in the same place (both unlayered, or both in one
+  `@layer`): an override inside `@layer` loses to an unlayered `:root` and silently does nothing.
 - Real content from `site-research/`. Exact name, phone and address from `content.json`.
 - Empty values hide their element. No placeholder text on a page.
 - Images: modern formats, `srcset`, width and height set, lazy below the fold, real alt text, served from the
   site's own domain.
 - Every page: a title and description that say what and where, one `h1`, canonical, share image (a real photo),
   business structured data. Sitemap, robots, 404, favicon set.
-- Forms validate, show errors next to the field, and have a success state. Inputs are 16 px or larger.
+- Forms validate, show errors next to the field, and have a success state. Inputs are 16 px or larger. A form
+  with nowhere confirmed to send: build it to open the visitor's email app (`mailto:`) once the owner gives an
+  address, show only the call button until then, and put "where should requests go?" on the owner's list.
 - Tap targets 44 px. Visible focus. Nothing works on hover only.
-- Motion: copy `patterns/motion.css` and `patterns/motion.js`, then only what the plan lists.
+- Motion: copy from `patterns/` only what the plan uses. `motion.js` and the reveal rules in `motion.css` are
+  only for a site with `data-wipe` or `data-rise` elements.
 - Redirects in the host's format (redesign).
 - `site/README.md` for the owner: run, build, deploy, edit content.
 
@@ -184,7 +194,7 @@ review of every page, then an independent review. Fix what they find and rerun. 
 
 1. What they are getting, in five plain bullets.
 2. Before and after: `compare/` holds the old home page (or the Google listing, for a new site) beside the new
-   one at phone and laptop.
+   one at phone and laptop (so research captures the old page or listing at both widths).
 3. Scores: Lighthouse for the new site, and the old one in a redesign.
 4. What you still need from them: every empty value, conflict and approval.
 5. How to preview it, and what launch involves (domain, DNS, email records that must not change).

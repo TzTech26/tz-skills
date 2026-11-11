@@ -62,6 +62,14 @@ export function check(html, { phone, address, maxPhone = 3, maxAddress = 2, maxD
       problems.push(`line repeats its heading: "${m[1].replace(/<[^>]+>/g, '').trim()}" / "${m[2].trim()}"`);
     }
   }
+  // A heading of three or more words that only repeats the line above it.
+  for (const m of html.matchAll(/<(?:p|span|div)[^>]*>([^<]{3,300})<\/(?:p|span|div)>\s*<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi)) {
+    const prev = words(m[1]);
+    const head = words(m[2].replace(/<[^>]+>/g, ''));
+    if (head.length >= 3 && head.every((w) => prev.includes(w))) {
+      problems.push(`heading repeats the line above it: "${m[1].trim()}" / "${m[2].replace(/<[^>]+>/g, '').trim()}"`);
+    }
+  }
   return problems;
 }
 
@@ -92,6 +100,10 @@ function selfTest() {
   assert.match(found, /said 3 times: "monday to friday/);
   assert.deepEqual(check('<body><p>18 g / 24 g protein. Contains caffeine</p><p>18 g / 24 g protein. Contains caffeine</p></body>'), []);
   assert.match(found, /line repeats its heading: "Engine swaps"/);
+  assert.match(
+    check('<body><p>Anything from oil changes to engine swaps.</p><h2>Oil changes to engine swaps</h2></body>').join('\n'),
+    /heading repeats the line above it/,
+  );
   // Text inside scripts and styles is not page text.
   assert.deepEqual(check('<body><script>var a="Monday Monday Monday Monday Monday Monday Monday Monday Monday Monday Monday Monday"</script></body>'), []);
   console.log('repeats.mjs self-test passed');
