@@ -55,7 +55,7 @@ next command. Nothing else.
 That is the whole list. Do not write other planning documents; if something matters, it goes in `PLAN.md`.
 Notes that belong to a listed file go inside it: sources in `content.json`, photo notes and reference-site notes
 in `brand.md` and `BRIEF.md`. Scratch files (scripts, reference-site screenshots, raw downloads, a throwaway
-`npm i playwright sharp` for screenshots before `site/` exists) go in `site-research/_local/`, which is never
+`npm i playwright sharp` and the preview's font packages before `site/` exists) go in `site-research/_local/`, which is never
 committed: first add `**/site-research/_local/` to the repository's root `.gitignore` and check with
 `git status` that it is ignored.
 
@@ -114,7 +114,7 @@ Read `reference/sources.md`. Goal: after this phase nobody needs to visit the ol
 5. **Three reference sites**, no more: good sites for the same kind of business, plus any the user named. For
    each, one screenshot and three lines: what works, the one idea worth adapting, what to avoid. Keep the
    screenshots in `_local/` and the lines in `BRIEF.md`. A site that blocks the fetch is skipped for the next
-   candidate. Do not record videos or write per-site reports.
+   candidate; after eight candidates, go on with what loaded and say so in the brief. Do not record videos or write per-site reports.
 6. **`BRIEF.md`**, one page: the business in two sentences, the goal, what exists (logo, photos, facts), what is
    missing, the top problems (redesign) or what customers cannot find today (new), and questions for the owner.
 

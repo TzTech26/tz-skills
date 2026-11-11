@@ -22,6 +22,9 @@ link). On the page that is the full home for those facts, the footer drops what 
 header or side rail that stays on screen counts like the footer: one short line (today's hours, the phone), never
 the table.
 
+A one-page site with no header has the main action in the hero only. On a place site, the address sits beside
+the directions button, so neither is needed twice.
+
 Before a page is done, list every place hours, phone, address and the main action appear on it. More than one in
 the page body, or the same sentence anywhere twice: cut. `checks/repeats.mjs` counts them in the built site.
 

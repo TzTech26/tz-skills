@@ -16,14 +16,15 @@ Nine, and no more unless the plan says why.
 | `--ground-dark` | At most one dark section, and the footer if it is dark | A true dark neutral |
 | `--ink` | Text | Near-black, not `#000`. 7:1 or better on `--ground` |
 | `--muted` | Labels, meta, captions only | 4.5:1 or better on `--ground` and `--ground-alt` |
-| `--line` | Hairlines and field borders | 3:1 for field borders |
+| `--line` | Hairlines and field borders | 3:1 for field borders; a hairline that is only a divider can be lighter |
 | `--accent` | The brand color, as close to the logo as passes | See "Where the accent goes" |
 | `--accent-strong` | Darker step of the accent for text links and filled buttons when `--accent` fails contrast | 4.5:1 on `--ground` |
 | `--on-accent` | Text on an accent fill | 4.5:1 on whichever accent it sits on |
 
 No 50 to 950 ramps. No secondary or tertiary brand colors. Hover and pressed states are the same token mixed
 with ink or ground (`color-mix`), not new tokens. Status colors (open, closed, error) are only added if the site
-shows that status, and each is used for that and nothing else.
+shows that status, and each is used for that and nothing else. Muted text on `--ground-dark` is `--ground`
+mixed toward the dark (`color-mix`), still 4.5:1, not a new token.
 
 ## Picking them
 
@@ -88,4 +89,5 @@ cannot say which of the three a color is, remove it.
 - Put the logo on every background it will sit on in the preview. If a variant clashes, change the background,
   never the logo.
 - Squint at the preview. The primary button should be the first colored thing you notice. If the eye goes
-  somewhere else, there is too much color.
+  somewhere else, there is too much color. The logo does not count, and neither does a type wordmark standing
+  in for one.
