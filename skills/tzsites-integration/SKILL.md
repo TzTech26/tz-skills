@@ -26,12 +26,15 @@ not inside a checkout of `TzTech26/Redesgin` (no `tzsites.schema.json` next to y
 3. From other business folders copy plumbing only: the content loader, the SEO and live editor templates (through
    their scripts), test setup and host files. Pages, layouts, components and styles are designed for this business
    by `site-design`. Take plumbing from the most recently added business folder, and rewrite its Playwright
-   config to match `site-design`'s `reference/testing.md` (own port, no screenshot baselines).
+   config to match `site-design`'s `reference/testing.md` (own port, no screenshot baselines). Copy its
+   `package-lock.json` before the first `npm install`: a fresh install can pull a newer native build tool that
+   Windows blocks ("Cannot find native binding", "Application Control policy").
 4. **A business with no website yet**: `oldSiteUrl` is `""`, and `screenshots.old` is a screenshot of its Google
    listing (Google Maps in headless Playwright, at phone and laptop width).
 5. **One folder and slug per business.** If a branch or open PR already has this business's folder, say so
    before starting: only one of them can merge.
-6. Apply the rules below from the first file you write; converting afterwards is more work.
+6. Apply the rules below from the first file you write; converting afterwards is more work. On Windows, write
+   files with the file tool, not shell heredocs (they mangle backslashes and apostrophes).
 
 ## 2. Keep `site/` the deliverable
 
@@ -73,7 +76,7 @@ Rules:
   and descriptions (~150 characters). **Every** `<page>_seo_title` and `<page>_seo_description` names the city or
   area naturally, the home page's too, and no page title uses a name only the owner understands ("Misc" becomes
   "St. Louis Street & Car Photography"). Also fill
-  `seo_business_type` (closest schema.org type), `seo_cuisine` and `seo_price_range` for restaurants,
+  `seo_business_type` (the closest type in the field's own options list, which is closed: a barber is `HairSalon`), `seo_cuisine` and `seo_price_range` for restaurants,
   `seo_service_area` for businesses that travel or serve a metro area (it becomes `areaServed`, e.g. "Greater St. Louis area"), `seo_profiles` (Google Business Profile, Yelp, Tripadvisor) and
   `seo_keywords` (2–5 real searches). Leave `seo_site_url`, verification codes and analytics IDs empty: the owner
   provides them at launch.
@@ -112,7 +115,7 @@ before and after to prove nothing changed.
 
 ## 5. Wire the site to the snapshot
 
-- Copy the loader from `Camino Real/site/src/lib/content.ts`: it reads the snapshot and, **only** when the build
+- Copy the loader (`site/src/lib/content.ts`) from the same folder as the rest of the plumbing: it reads the snapshot and, **only** when the build
   env var `TZSITES_CONTENT_URL` is set, fetches the published content once at build time, falling back to the
   snapshot on any error. Without the variable the site never contacts TZ Sites.
 - Build a small view model on top (like `src/lib/site.ts`) and make every page/component read from it
@@ -177,7 +180,8 @@ markers"):
   through these markers, so keep to these shapes. **Hours:** inside the element marked with the hours field, one
   row per day carries `data-day="mon"`…`"sun"`, and the times are the only text in the row's last `<td>`/`<dd>`
   (a table showing two hours fields lists both keys on the marker, one cell per field in that order). Grouped
-  rows ("Mon–Thu") can't be previewed. **Collections:** every item, wherever it's listed, has `data-tz-item`, and
+  rows ("Mon–Thu") can't be previewed, and anything drawn from the hours at build time (bars, a today line)
+  stays as built: say so in the report. **Collections:** every item, wherever it's listed, has `data-tz-item`, and
   each part has `data-tz-item-field`: a new item is shown as a copy of its neighbour with those parts refilled, a
   removed one is hidden. **Colour fields** that change the design are read from a CSS variable named
   `--tz-<fieldKey>` (set on `:root` at build time); the preview sets that variable.

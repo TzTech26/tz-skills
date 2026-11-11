@@ -16,7 +16,14 @@ behalf, never submit a form, never download more than you will use.
 | Files and answers from the owner | Anything missing | Ask in the brief, in one list |
 
 For a business with no site, screenshot its Google listing at phone and laptop width (Google Maps loads in
-headless Playwright); the report's before-and-after needs both.
+headless Playwright); the report's before-and-after needs both. If the listing shows a customer's photo of
+people, crop it out or pick a view without it before committing the screenshot.
+
+Signed out, Google Maps is a limited view: rating, address, phone, pin and today's hours, but no review text,
+no weekly hours and no owner photos. Those need the user's signed-in browser. Facebook post text is only in the
+DOM while on screen: collect it as you scroll, do not read the page once at the end.
+
+A 403 or a bot check is final: do not retry with another client or user agent.
 
 Ask for the user's signed-in browser only when a source needs it, and say which source.
 
@@ -28,6 +35,8 @@ Ask for the user's signed-in browser only when a source needs it, and say which 
   Check dates and what the reviews talk about. Quote reviews exactly, with the source, and never rewrite one.
 - **Conflicts.** Two closing times, two phone numbers: record both with their sources and dates, use the most
   recent official one, and put the conflict on the owner's list.
+- **Facts read off a photo** (the cross street, a price on a board, "red roof") go in `content.json` with the
+  photo as their source, like any other fact.
 - **Claims.** Health claims, "best in town", license numbers: only if the business publishes them, and still
   flag for the owner.
 

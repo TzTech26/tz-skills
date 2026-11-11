@@ -19,7 +19,8 @@ Scrolling a page of plain sections should move nothing. No blanket reveal.
 
 ## Choosing a signature piece
 
-Start from what the business actually has, not from the effect.
+Start from what the business actually has, not from the effect. Check the sibling sites first: a piece one of
+them already has (in this table or invented) is taken.
 
 | The business has | Piece | File |
 |---|---|---|

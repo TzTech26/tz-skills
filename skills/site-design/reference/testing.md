@@ -16,8 +16,8 @@ optional: add it only if it launches.
 Run against the production build (`webServer` runs `npm run build && npm run preview`), never dev mode. Give
 each site its own port (not 4321) and set `reuseExistingServer: false`: with a shared port, tests and
 screenshots silently run against another site's server. Astro allows one preview server per project and a stale
-one keeps serving the old build (`npx astro preview stop` clears it). Before any screenshot, check the page
-title is this business's.
+one keeps serving the old build (`npx astro preview stop` clears it). Stop any screenshot server before
+`npm test`, or the run fails on the taken port. Before any screenshot, check the page title is this business's.
 
 If a config was copied from a sibling, make it match this file (these screens and engines, no screenshot
 baselines) and pin the version there too.
@@ -55,7 +55,8 @@ Every page:
 - With `reducedMotion: 'reduce'`, the page works and nothing moves on its own.
 
 In these tests, scroll with `behavior: 'instant'` (smooth scrolling has not landed by the next assertion in
-WebKit), and leave out inputs hidden on purpose behind a custom control. An entrance on the first screen may
+WebKit), and leave out inputs hidden on purpose behind a custom control. Focus-ring tests arrive by keyboard
+(Tab, Shift+Tab): `element.focus()` after a click does not match `:focus-visible`. An entrance on the first screen may
 move a cover or the element; it never touches the content's opacity.
 
 **Optional states.** The default content never shows the form, an announcement, holiday hours or empty values.
@@ -77,11 +78,13 @@ it. Keep an allowlist for the owner's own phrases and for menu item names.
 Redirects (redesign): every old URL returns 301 to the planned target.
 
 Lighthouse: the home page and one inner page (a one-page site: just the home page), phone and laptop. Aim for 90 or better in all four. Record LCP and
-CLS. Do not save the raw JSON.
+CLS. Do not save the raw JSON. The laptop run uses Lighthouse's desktop config
+(`lighthouse/core/config/desktop-config.js`), not phone throttling on a wide screen. Phone scores vary run to
+run: take the median of three.
 
 ## The two check scripts
 
-After `npm run build`:
+After `npm run build` (so `dist` is the default-content build, not an optional-states copy):
 
 ```bash
 node <skill>/checks/palette.mjs site/dist
@@ -116,7 +119,8 @@ Fix what you find, then rerun the tests.
 Give a fresh reviewer (a subagent if you have one) only the screenshots, `PLAN.md`, `content.json` and the home
 page screenshots of any sibling sites, and ask for: which of these sites look like they came from the same
 template, anything invented or not in `content.json`, anything repeated, anything that reads as a template or as
-written by a machine, and the weakest page. No context from the build. Fix what comes back. If there is no
+written by a machine, and the weakest page. Tell them plain conventions (a filled and an outlined button,
+hairline rows) are not template signs. No context from the build. Fix what comes back. If there is no
 subagent, do the same pass yourself after a break from the build, starting from the screenshots.
 
 ## Results
