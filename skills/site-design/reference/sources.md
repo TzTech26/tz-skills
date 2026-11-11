@@ -15,6 +15,9 @@ behalf, never submit a form, never download more than you will use.
 | Yelp, BBB, trade directories, the state business registry | Cross-checks: legal name, license, years, complaints | Many block automated fetches; one try each |
 | Files and answers from the owner | Anything missing | Ask in the brief, in one list |
 
+For a business with no site, screenshot its Google listing at phone and laptop width (Google Maps loads in
+headless Playwright); the report's before-and-after needs both.
+
 Ask for the user's signed-in browser only when a source needs it, and say which source.
 
 ## Checks on what you find
@@ -36,10 +39,12 @@ Ask for the user's signed-in browser only when a source needs it, and say which 
    the owner for the original file in the to-do list. Never redraw, recolor or restyle a logo.
 3. Pull the one or two logo colors: SVG fills, or sample the flat areas of a raster. Write the hex values in
    `brand.md`.
-4. **No logo anywhere**: set the business name in type as a wordmark. Offer two options in the plan (shown in
+4. **A logo that exists only on a sign in a photo** counts as lettering, not a file: do not cut it out as the
+   site's logo. Treat it as the next step and base the wordmark on it.
+5. **No logo file anywhere**: set the business name in type as a wordmark. Offer two options in the plan (shown in
    `preview.png`) and let the user choose. Base it on lettering the business already uses if there is any (the
    sign, a shirt, an invoice). Say plainly in the report that it is a stand-in.
-5. Favicon: a square, readable mark (symbol or monogram on a solid ground), never the full wordmark shrunk.
+6. Favicon: a square, readable mark (symbol or monogram on a solid ground), never the full wordmark shrunk.
 
 ## Photos
 

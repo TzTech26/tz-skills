@@ -18,7 +18,9 @@ Decide where each fact lives before writing a page (the fact map in the plan).
 | About blurb | The about section or page | Footer gets the name and one line at most, not the same sentence |
 
 The footer is global, so it carries a short version (name, one-line address, today's hours or a link, contact
-link). On the page that is the full home for those facts, the footer drops what the page already shows.
+link). On the page that is the full home for those facts, the footer drops what the page already shows. A
+header or side rail that stays on screen counts like the footer: one short line (today's hours, the phone), never
+the table.
 
 Before a page is done, list every place hours, phone, address and the main action appear on it. More than one in
 the page body, or the same sentence anywhere twice: cut. `checks/repeats.mjs` counts them in the built site.
