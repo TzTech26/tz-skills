@@ -195,6 +195,7 @@ straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.j
 | File | Rule |
 |---|---|
 | `wrangler.jsonc` | `"name"`: the business slug; `"assets"`: `{ "directory": "./dist", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page" }`; `"previews": {}` (Cloudflare runs `npx wrangler preview` for branch builds, which fails without it). No Worker script, no bindings. |
+| `.node-version` | One line, an exact Node version (copy the newest sibling's, e.g. `24.22.1`), written with a plain line feed. Without it the build uses whatever Node the Cloudflare image defaults to that day. |
 | `public/_headers` | `/*`: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, and `Content-Security-Policy: frame-ancestors 'self' https://tzsites.com https://*.tzsites.com http://localhost:*` (see §2: never `X-Frame-Options`). `/_astro/*`: `Cache-Control: public, max-age=31536000, immutable`. |
 | `public/_redirects` | A 301 for every old URL that changes (from the plan's redirect table). Never a rule that only adds or removes a trailing slash: the host already does that, and the rule loops. |
 | `astro.config.mjs` | `site` from the `SITE_URL` build variable, defaulting to the preview address (`https://<subdomain>.tzsites.com`), so canonicals, Open Graph URLs and the sitemap are right even when the variable is missing. |
@@ -210,8 +211,14 @@ straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.j
 | Root directory | `/<Business Name>/site` |
 | Build command | `npm run build` |
 | Deploy command | `npx wrangler deploy` |
-| Variables | `SITE_URL=https://<subdomain>.tzsites.com`; `NODE_VERSION=22` if the build image is older |
+| Variables | `SITE_URL=https://<subdomain>.tzsites.com` (Node comes from `site/.node-version`) |
 | Custom domain | `<subdomain>.tzsites.com` (short and readable, e.g. `lp-pro.tzsites.com`) |
+
+**When a build fails**, open the check's link and read the log before changing code. A failure in "Installing"
+before `npm clean-install` runs ("error occurred while installing tools or dependencies") is Cloudflare's setup
+step, not the site: check `.node-version` exists, then use Retry build. If several businesses fail on a commit
+that did not touch them, it is not that commit. On Windows, stage files with a plain `git add`; turning
+`core.autocrlf` off for one command rewrites line endings across the repo.
 
 The project's Settings page has two build tabs, and both must be right or every pull request in the repo shows a
 failed check for this business:
