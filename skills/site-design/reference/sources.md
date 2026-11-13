@@ -15,9 +15,8 @@ behalf, never submit a form, never download more than you will use.
 | Yelp, BBB, trade directories, the state business registry | Cross-checks: legal name, license, years, complaints | Many block automated fetches; one try each |
 | Files and answers from the owner | Anything missing | Ask in the brief, in one list |
 
-For a business with no site, screenshot its Google listing at phone and laptop width (Google Maps loads in
-headless Playwright); the report's before-and-after needs both. If the listing shows a customer's photo of
-people, crop it out or pick a view without it before committing the screenshot.
+A business with no site has no "before" picture: do not screenshot its Google listing or Facebook page for the
+report or the proposal.
 
 Signed out, Google Maps is a limited view: rating, address, phone, pin and today's hours, but no review text,
 no weekly hours and no owner photos. Those need the user's signed-in browser. Facebook post text is only in the

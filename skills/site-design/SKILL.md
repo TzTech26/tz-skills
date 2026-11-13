@@ -193,8 +193,9 @@ review of every page, then an independent review. Fix what they find and rerun. 
 `redesign-report/REPORT.md`, one page, for the owner:
 
 1. What they are getting, in five plain bullets.
-2. Before and after: `compare/` holds the old home page (or the Google listing, for a new site) beside the new
-   one at phone and laptop (so research captures the old page or listing at both widths).
+2. Before and after (redesign only): `compare/` holds the old home page beside the new one at phone and laptop
+   (so research captures the old page at both widths). A business with no site has no "before": show only the
+   new site, and never use its Google listing or Facebook page as the old one.
 3. Scores: Lighthouse for the new site, and the old one in a redesign.
 4. What you still need from them: every empty value, conflict and approval.
 5. How to preview it, and what launch involves (domain, DNS, email records that must not change).

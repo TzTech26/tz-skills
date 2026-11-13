@@ -21,7 +21,7 @@ folder holds the skill, short reference files it reads per phase (`reference/`),
 (`patterns/`) and two check scripts (`checks/`, each with `--self-test`).
 
 `tzsites-integration` needs a checkout of TzTech26/Redesgin (its scripts and templates), `gh`, and for previews a
-Cloudflare account with the `tzsites.com` zone.
+Cloudflare account whose `workers.dev` subdomain is `tzsites`.
 
 ## Add or change a skill
 

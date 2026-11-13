@@ -1,6 +1,6 @@
 ---
 name: tzsites-integration
-description: Put a website into the TZ Sites format of the TzTech26/Redesgin repo so the TZ Sites app can import it as a proposal - a business folder with tzsites.json, a standalone site/ that reads all editable content from site/src/data/tzsites-content.json, live editor markers (data-tz-field), the SEO template, and a Cloudflare preview on tzsites.com. Integration only; the design comes from the site-design skill. Use when asked to make a new proposal or redesign for a business in that repo, to convert an existing site folder to the TZ Sites format, or to add or change editable fields, markers, SEO settings or the preview hosting on one.
+description: Put a website into the TZ Sites format of the TzTech26/Redesgin repo so the TZ Sites app can import it as a proposal - a business folder with tzsites.json, a standalone site/ that reads all editable content from site/src/data/tzsites-content.json, live editor markers (data-tz-field), the SEO template, and a Cloudflare preview on tzsites.workers.dev. Integration only; the design comes from the site-design skill. Use when asked to make a new proposal or redesign for a business in that repo, to convert an existing site folder to the TZ Sites format, or to add or change editable fields, markers, SEO settings or the preview hosting on one.
 ---
 
 # TZ Sites integration
@@ -29,8 +29,9 @@ not inside a checkout of `TzTech26/Redesgin` (no `tzsites.schema.json` next to y
    config to match `site-design`'s `reference/testing.md` (own port, no screenshot baselines). Copy its
    `package-lock.json` before the first `npm install`: a fresh install can pull a newer native build tool that
    Windows blocks ("Cannot find native binding", "Application Control policy").
-4. **A business with no website yet**: `oldSiteUrl` is `""`, and `screenshots.old` is a screenshot of its Google
-   listing (Google Maps in headless Playwright, at phone and laptop width).
+4. **A business with no website yet**: `oldSiteUrl` is `""` and there is no `screenshots.old`: leave it
+   out. There is no old site to show, so never put a screenshot of the Google listing, Facebook page or anything
+   else in its place.
 5. **One folder and slug per business.** If a branch or open PR already has this business's folder, say so
    before starting: only one of them can merge.
 6. Apply the rules below from the first file you write; converting afterwards is more work. On Windows, write
@@ -61,6 +62,7 @@ Create a field for everything the owner would want to change without a developer
 | Business info | `business_name` (required), `legal_name`, `about_short`, `phone`, `email` |
 | Location | `address_street`, `address_city`, `address_state`, `address_zip`, `latitude`, `longitude`, `map_embed_url` |
 | Hours | `hours` (type `hours`; the note goes in the value's `note`) |
+| Planned closed days (every site with `hours`) | `closed_days`: a `collection` of `date` (first day closed), `end_date` (optional, for more than one day) and `reason` (optional text, "Thanksgiving", "Family vacation") |
 | Announcement | `announcement_enabled`, `announcement_text`, `announcement_link` (specials, closures) |
 | Social links | `facebook_url`, `instagram_url`, … (one `url` field each; empty hides it) |
 | Home / other pages | hero headline and intro, section headings and intros, hero and section photos (`image`/`gallery`) |
@@ -80,6 +82,19 @@ Rules:
   `seo_service_area` for businesses that travel or serve a metro area (it becomes `areaServed`, e.g. "Greater St. Louis area"), `seo_profiles` (Google Business Profile, Yelp, Tripadvisor) and
   `seo_keywords` (2–5 real searches). Leave `seo_site_url`, verification codes and analytics IDs empty: the owner
   provides them at launch.
+- **Every site with hours lets the owner close days in advance** (`closed_days`, labelled "Planned closed days",
+  help: "Add days you'll be closed, like holidays or vacation. They show on the site automatically and drop off
+  when they pass."). If the README's `hours` type already has dated exceptions, use those instead of a separate
+  collection; the behavior is the same. The site applies them on its own, with no announcement to write:
+  - A bar at the top of every page (the announcement bar's slot) shows the next closure from 14 days ahead:
+    "Closed Thursday, Nov 26: Thanksgiving". On the day it reads "Closed today: Thanksgiving".
+  - Everything drawn from the hours obeys it: the open-now or today line says closed (with the reason), and the
+    hours table lists upcoming closed days under it. JSON-LD gets a `specialOpeningHoursSpecification` entry.
+  - The visitor's date decides, not the build date: render the list into the page as JSON and pick what to show
+    in a client script, in the business's `timezone`. Past days are ignored, and an empty list shows nothing.
+    With JavaScript off, the upcoming days as of the build still show under the hours table.
+  - Test it with the clock set (Playwright `page.clock`) to a week before a closed day, to the day itself, and
+    to the day after.
 - `type` is one of the TZ Sites types; `config` follows `FieldConfig` exactly (see README). Collections need
   `itemFields` (types other than collection/hours/gallery, `helpText` not `help`), `itemTitleKey`, `itemLabel`.
 - Keys are snake_case and stable. Labels and `help` are written for a restaurant/shop owner, not a developer.
@@ -96,8 +111,13 @@ Rules:
   social profile by the SEO template; the Google listing itself goes in `seo_profiles`.
 - A form with nowhere confirmed to send: an optional `email` field that is not printed on the site. Filled, the
   form opens the visitor's email app; empty, the site shows the call button instead.
-- Fill `oldSiteUrl`, `summary` (from the report: what changed, in plain words, no invented claims),
-  `screenshots.old` (e.g. `site-research/pages/home/laptop.png`) and `screenshots.new`
+- `summary` is the description the owner reads on the proposal: two to four sentences, about 60 words, plain
+  words, no invented claims. It says what is better, not what is on the site. A redesign: what improved over the
+  old site (reads on a phone, loads faster, hours and the call button up front, …). A business with no site: one
+  sentence that this is its first website, then the two or three best features (the signature interactive piece,
+  open-now hours, one-tap directions and calling). End with one short sentence on what is editable in TZ Sites.
+  Never a tour of the content: no prices, no hours, no address, no history, no section-by-section list.
+- Fill `oldSiteUrl`, `screenshots.old` (redesign only, e.g. `site-research/pages/home/laptop.png`) and `screenshots.new`
   (e.g. `redesign-report/compare/_new/home-laptop.png`) with files that exist. Add `previewUrl` only if deployed.
   `validate.mjs` fails on `screenshots.new` until the report phase has made that file; that one failure is
   expected during the build.
@@ -190,7 +210,7 @@ markers"):
 
 ## 7. Host the preview
 
-Every proposal is previewed on a `tzsites.com` subdomain served by **Cloudflare Workers (static assets)**, built
+Every proposal is previewed on `https://<name>.tzsites.workers.dev` served by **Cloudflare Workers (static assets)**, built
 straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.jsonc`, `public/_headers`,
 `public/_redirects`, `src/pages/robots.txt.ts`, `astro.config.mjs`).
 
@@ -198,11 +218,11 @@ straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.j
 
 | File | Rule |
 |---|---|
-| `wrangler.jsonc` | `"name"`: the business slug; `"assets"`: `{ "directory": "./dist", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page" }`; `"previews": {}` (Cloudflare runs `npx wrangler preview` for branch builds, which fails without it). No Worker script, no bindings. |
+| `wrangler.jsonc` | `"name"`: the business slug, which is also the preview address (`<name>.tzsites.workers.dev`); `"assets"`: `{ "directory": "./dist", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page" }`; `"previews": {}` (Cloudflare runs `npx wrangler preview` for branch builds, which fails without it). No Worker script, no bindings. |
 | `.node-version` | One line, an exact Node version (copy the newest sibling's, e.g. `24.22.1`), written with a plain line feed. Without it the build uses whatever Node the Cloudflare image defaults to that day. |
 | `public/_headers` | `/*`: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, and `Content-Security-Policy: frame-ancestors 'self' https://tzsites.com https://*.tzsites.com http://localhost:*` (see §2: never `X-Frame-Options`). `/_astro/*`: `Cache-Control: public, max-age=31536000, immutable`. |
 | `public/_redirects` | A 301 for every old URL that changes (from the plan's redirect table). Never a rule that only adds or removes a trailing slash: the host already does that, and the rule loops. |
-| `astro.config.mjs` | `site` from the `SITE_URL` build variable, defaulting to the preview address (`https://<subdomain>.tzsites.com`), so canonicals, Open Graph URLs and the sitemap are right even when the variable is missing. |
+| `astro.config.mjs` | `site` from the `SITE_URL` build variable, defaulting to the preview address (`https://<name>.tzsites.workers.dev`), so canonicals, Open Graph URLs and the sitemap are right even when the variable is missing. |
 | `src/pages/robots.txt.ts` | From the SEO template (`add-seo.mjs` copies it): robots.txt from the SEO settings and the site address (`Sitemap: <site>/sitemap-index.xml`), never a hard-coded `public/robots.txt`. |
 | `src/integrations/tzsites-fields.mjs` | From the live editor template (`add-live-editor.mjs` copies it), in `astro.config.mjs` `integrations`: writes `dist/tzsites-fields.json` (§6). `public/_headers` gets `/tzsites-fields.json` with `Access-Control-Allow-Origin: *`. |
 
@@ -215,8 +235,8 @@ straight from this repo. Copy the setup from `LP Productions/site/` (`wrangler.j
 | Root directory | `/<Business Name>/site` |
 | Build command | `npm run build` |
 | Deploy command | `npx wrangler deploy` |
-| Variables | `SITE_URL=https://<subdomain>.tzsites.com` (Node comes from `site/.node-version`) |
-| Custom domain | `<subdomain>.tzsites.com` (short and readable, e.g. `lp-pro.tzsites.com`) |
+| Variables | `SITE_URL=https://<name>.tzsites.workers.dev` (Node comes from `site/.node-version`) |
+| Address | `https://<name>.tzsites.workers.dev`, where `<name>` is the `"name"` in `wrangler.jsonc` (short and readable, e.g. `lp-pro`). Keep the `workers.dev` route on. Never a `<name>.tzsites.com` custom domain: every link to a preview (`previewUrl`, `SITE_URL`, the report, the PR) is the `workers.dev` address. |
 
 **When a build fails**, open the check's link and read the log before changing code. A failure in "Installing"
 before `npm clean-install` runs ("error occurred while installing tools or dependencies") is Cloudflare's setup
@@ -254,7 +274,7 @@ Then put that address in `tzsites.json` as `previewUrl`, and in the site's `astr
   snapshot. When the customer goes live, TZ Sites hosting follows `docs/DEPLOYMENT.md` §10 in the TZ Sites app repo
   (set `TZSITES_CONTENT_URL`, add the deploy hook to the site in TZ Sites).
 - **The customer's own domain** is never pointed at the new site without the owner's OK. Previews stay on
-  `tzsites.com`. At launch, set `SITE_URL` to their domain and rebuild.
+  `tzsites.workers.dev`. At launch, set `SITE_URL` to their domain and rebuild.
 - `site/README.md` documents the same steps for a customer who hosts it themselves.
 
 ## 8. Check
